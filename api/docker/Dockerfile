@@ -4,12 +4,17 @@ RUN apt-get update
 
 RUN apt-get install -y \
     pkg-config  \
-    libzip-dev
+    libzip-dev \
+    git
 
 RUN docker-php-ext-install \
     mysqli \
     pdo_mysql \
     zip
+
+RUN mkdir -p /usr/src/php/ext/redis; \
+    curl -fsSL https://pecl.php.net/get/redis --ipv4 | tar xvz -C "/usr/src/php/ext/redis" --strip 1; \
+    docker-php-ext-install redis;
 
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 
