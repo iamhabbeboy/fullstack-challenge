@@ -15,3 +15,4 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', [\App\Http\Controllers\UserController::class, 'index']);
+Route::get('/{id}', [\App\Http\Controllers\UserController::class, 'show']);

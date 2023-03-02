@@ -1,23 +1,39 @@
 <script lang="ts">
-import Card from "@/components/Card.vue";
+import WeatherCard from "@/components/WeatherCard.vue";
+import { storeToRefs } from 'pinia'
+import { useUserStore } from '../stores/user'
+import { useRouter } from "vue-router";
 
 export default {
   components: {
-    Card,
+    WeatherCard,
   },
-  data: () => ({
-    apiResponse: null,
-  }),
+  setup() {
+    const store = useUserStore();
+    const { users, loading, error } = storeToRefs(store);
+    const { fetchData } = useUserStore();
 
-  created() {
-    this.fetchData();
-  },
+    if (!users.value.length) {
+      fetchData();
+    }
 
-  methods: {
-    async fetchData() {
-      const url = "http://localhost/";
-      this.apiResponse = await (await fetch(url)).json();
-    },
+    setInterval(fetchData, 60 * 60 * 1000);
+
+    const router = useRouter();
+
+    const handleNavigation = (userId: number) => {
+      if (!userId) {
+        return;
+      }
+      router.push(`/${userId}`);
+    }
+
+    return {
+      error,
+      users,
+      loading,
+      handleNavigation,
+    };
   },
 };
 </script>
@@ -25,12 +41,14 @@ export default {
 <template>
   <main class="container mx-auto">
     <div>
-      <h3>Filter</h3>
+      <h1 class="text-3xl py-2 text-cyan-600">User Info</h1>
     </div>
-    <div v-if="!apiResponse">Pinging the api...</div>
-    <section class="flex flex-wrap py-10 justify-between">
-      <Card
-        v-for="(value, index) in apiResponse.users"
+    <div v-if="loading && !users.users">Pinging the api...</div>
+    <div v-if="error">{{ error }}</div>
+    <section class="flex flex-wrap py-5 justify-between" v-if="users">
+      <WeatherCard
+        @handle-click="handleNavigation"
+        v-for="(value, index) in users.users"
         :key="index"
         :payload="value"
       />

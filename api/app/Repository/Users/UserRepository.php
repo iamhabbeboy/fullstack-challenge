@@ -21,9 +21,16 @@ class UserRepository implements UserRepositoryInterface
         $this->weatherService = $weather;
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function get(int $id): Model|Builder
     {
-        return $this->user->query()->findOrFail($id);
+        $user = $this->user->query()->where('id', $id)->get();
+        $responses = $this->weatherService->get($user);
+        $payload = $responses[$id];
+
+        return $this->getWeatherMappingInfo($payload, $user->first());
     }
 
     /**
@@ -37,13 +44,18 @@ class UserRepository implements UserRepositoryInterface
 
         foreach($responses as $userId => $response) {
             $user = $this->user->query()->findOrFail($userId);
+            $user = $this->getWeatherMappingInfo($response, $user);
             $userResponse[$userId] = $user;
-            if($response["state"] === PromiseInterface::FULFILLED) {
-                $result = json_decode((string) $response["value"]->getBody(), true);
-                $user->weather = $result;
-                $userResponse[$userId] = $user;
-            }
         }
-        return $userResponse;
+        return $userResponse->values();
+    }
+
+    private function getWeatherMappingInfo($response, $user)
+    {
+        if($response["state"] === PromiseInterface::FULFILLED) {
+            $result = json_decode((string) $response["value"]->getBody(), true);
+            $user->weather = $result;
+        }
+        return $user;
     }
 }

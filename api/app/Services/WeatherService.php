@@ -4,6 +4,7 @@ namespace App\Services;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Promise;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
 class WeatherService {
@@ -18,7 +19,7 @@ class WeatherService {
     /**
      * @throws \Throwable
      */
-    public function get($locations): array
+    public function get(Collection $locations): array
     {
         $promises = [];
         foreach($locations as $location) {
