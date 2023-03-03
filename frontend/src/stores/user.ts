@@ -1,5 +1,6 @@
-import { defineStore } from "pinia";
-import type { User } from "@/UserType";
+import {defineStore} from "pinia";
+
+const BASE_URL = "http://localhost/";
 
 export const useUserStore = defineStore("user", {
   state: () => ({
@@ -7,14 +8,12 @@ export const useUserStore = defineStore("user", {
     loading: false,
     error: "",
   }),
-  getters: {
-  },
+  getters: {},
   actions: {
     async fetchData() {
       this.loading = true;
       try {
-        const url = "http://localhost/";
-        this.users = await (await fetch(url)).json();
+        this.users = await (await fetch(BASE_URL)).json();
       } catch (e) {
         this.error = (e as Error).message;
       } finally {
@@ -24,8 +23,7 @@ export const useUserStore = defineStore("user", {
     async fetchUserById(userId: number) {
       this.loading = true;
       try {
-        const url = `http://localhost/${userId}`;
-        this.users = await (await fetch(url)).json();
+        this.users = await (await fetch(`${BASE_URL}${userId}`)).json();
       } catch (e) {
         this.error = (e as Error).message;
       } finally {
