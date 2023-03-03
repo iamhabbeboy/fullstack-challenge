@@ -42,8 +42,13 @@ class UserController extends Controller
                 'users' => Cache::get('users'),
             ]);
         }
-
-        $response = $this->userRepository->get($userId);
+        try {
+            $response = $this->userRepository->get($userId);
+        }catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         Cache::put('users-' . $userId, $response);
 

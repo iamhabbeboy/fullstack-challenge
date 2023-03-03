@@ -24,10 +24,12 @@ class UserRepository implements UserRepositoryInterface
     /**
      * @throws \Throwable
      */
-    public function get(int $id): Model|Builder
+    public function get(int $id): Model|Builder|bool
     {
         $user = $this->user->query()->where('id', $id)->get();
         $responses = $this->weatherService->get($user);
+        throw_if(!isset($responses[$id]), "Unable to get user weather info");
+
         $payload = $responses[$id];
 
         return $this->getWeatherMappingInfo($payload, $user->first());
