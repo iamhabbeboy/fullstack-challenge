@@ -24,7 +24,7 @@ class UserRepository implements UserRepositoryInterface
     /**
      * @throws \Throwable
      */
-    public function get(int $id): Model|Builder|bool
+    public function get(int $id): Model|Builder
     {
         $user = $this->user->query()->where('id', $id)->get();
         $responses = $this->weatherService->get($user);

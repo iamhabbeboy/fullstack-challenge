@@ -1,5 +1,6 @@
 # Fullstack Challenge
-
+## Preview 
+![PREVIEW](https://res.cloudinary.com/denj7z5ec/image/upload/v1677844259/ezgif.com-video-to-gif_nzkelf.gif)
 ## Instructions
 Using Laravel and VueJS, create an application which shows the weather for a set of users.
 - Create a fork of this repository. 

@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserCollection;
+use App\Http\Resources\UserResource;
 use App\Repository\Contracts\UserRepositoryInterface;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Resources\Json\ResourceCollection;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 
 class UserController extends Controller
@@ -15,33 +20,26 @@ class UserController extends Controller
         $this->userRepository = $userRepository;
     }
 
-    public function index(): JsonResponse
+    public function index(): UserCollection
     {
         if(Cache::has('users')) {
-            return response()->json([
-                'message' => 'all systems are a go',
-                'users' => Cache::get('users'),
-            ]);
+            return new UserCollection(Cache::get('users'));
         }
 
-        $response = $this->userRepository->getAll(['limit' => 1]);
+        $response = $this->userRepository->getAll(['limit' => 20]);
 
-        Cache::put('users', $response);
+        $expiration = now()->addMinutes(30);
+        Cache::put('users', $response, $expiration);
 
-        return response()->json([
-            'message' => 'all systems are a go',
-            'users' => $response,
-        ]);
+        return new UserCollection($response);
     }
 
-    public function show(int $userId): JsonResponse
+    public function show(int $userId): JsonResponse|UserResource
     {
-        if(Cache::has('users-' . $userId )) {
-            return response()->json([
-                'message' => 'all systems are a go',
-                'users' => Cache::get('users'),
-            ]);
+        if(Cache::has('user-' . $userId )) {
+            return new UserResource(Cache::get('users' . $userId));
         }
+
         try {
             $response = $this->userRepository->get($userId);
         }catch (\Exception $e) {
@@ -50,11 +48,9 @@ class UserController extends Controller
             ]);
         }
 
-        Cache::put('users-' . $userId, $response);
+        $expiration = now()->addMinutes(30);
+        Cache::put('user-' . $userId, $response, $expiration);
 
-        return response()->json([
-            'message' => 'all systems are a go',
-            'users' => $response,
-        ]);
+        return new UserResource($response);
     }
 }
